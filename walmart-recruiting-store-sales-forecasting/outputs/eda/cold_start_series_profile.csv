@@ -1,0 +1,12 @@
+Store,Dept,Store_Type,Store_Size,Test_Horizon_Weeks,First_Test_Date,Last_Test_Date,Recommended_Fallback
+5,99,B,34875,3,2012-11-23,2012-12-28,Mean sales of Dept 99 across Type B stores
+9,99,B,125833,4,2012-12-07,2013-07-26,Mean sales of Dept 99 across Type B stores
+10,99,B,126512,6,2012-11-30,2013-05-24,Mean sales of Dept 99 across Type B stores
+18,43,B,120653,1,2013-04-26,2013-04-26,Mean sales of Dept 43 across Type B stores
+24,43,A,203819,1,2013-06-21,2013-06-21,Mean sales of Dept 43 across Type A stores
+25,99,B,128107,2,2012-11-30,2012-12-21,Mean sales of Dept 99 across Type B stores
+34,39,A,158114,2,2012-11-02,2012-11-09,Mean sales of Dept 39 across Type A stores
+36,30,A,39910,2,2012-11-02,2013-03-15,Mean sales of Dept 30 across Type A stores
+37,29,C,39910,12,2012-11-30,2013-07-26,Mean sales of Dept 29 across Type C stores
+42,30,C,39690,2,2013-02-15,2013-03-01,Mean sales of Dept 30 across Type C stores
+45,39,B,118221,1,2013-04-26,2013-04-26,Mean sales of Dept 39 across Type B stores

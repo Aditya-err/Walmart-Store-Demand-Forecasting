@@ -1,0 +1,67 @@
+[
+  {
+    "Model":"Seasonal Residual LightGBM",
+    "WMAE":1878.37,
+    "MAE":1795.53,
+    "RMSE":3906.52,
+    "WMAE_Holiday":2144.99,
+    "WMAE_NonHoliday":1766.11,
+    "WMAE_vs_Champion_Delta":-110.16,
+    "WMAE_Improvement_Pct":5.54,
+    "Fit_Time_Sec":13.92,
+    "Forecast_Time_Sec":1.83,
+    "Status":"BEATS CHAMPION (NEW BEST!)"
+  },
+  {
+    "Model":"Global Blended Ensemble (alpha=0.00)",
+    "WMAE":1878.37,
+    "MAE":1795.53,
+    "RMSE":3906.52,
+    "WMAE_Holiday":2144.99,
+    "WMAE_NonHoliday":1766.11,
+    "WMAE_vs_Champion_Delta":-110.16,
+    "WMAE_Improvement_Pct":5.54,
+    "Fit_Time_Sec":13.92,
+    "Forecast_Time_Sec":1.93,
+    "Status":"BEATS CHAMPION (NEW BEST!)"
+  },
+  {
+    "Model":"Holiday-Segmented Ensemble (hol=0.00, nh=0.00)",
+    "WMAE":1878.37,
+    "MAE":1795.53,
+    "RMSE":3906.52,
+    "WMAE_Holiday":2144.99,
+    "WMAE_NonHoliday":1766.11,
+    "WMAE_vs_Champion_Delta":-110.16,
+    "WMAE_Improvement_Pct":5.54,
+    "Fit_Time_Sec":13.92,
+    "Forecast_Time_Sec":1.93,
+    "Status":"BEATS CHAMPION (NEW BEST!)"
+  },
+  {
+    "Model":"[Phase 4 Champion] Seasonal Naive (Lag 52)",
+    "WMAE":1988.53,
+    "MAE":1917.65,
+    "RMSE":4178.57,
+    "WMAE_Holiday":2216.66,
+    "WMAE_NonHoliday":1892.47,
+    "WMAE_vs_Champion_Delta":0.0,
+    "WMAE_Improvement_Pct":0.0,
+    "Fit_Time_Sec":0.86,
+    "Forecast_Time_Sec":3.0,
+    "Status":"Phase 4 Benchmark"
+  },
+  {
+    "Model":"[Phase 5 Best ML] Recursive LightGBM",
+    "WMAE":2211.83,
+    "MAE":2013.47,
+    "RMSE":5110.91,
+    "WMAE_Holiday":2850.33,
+    "WMAE_NonHoliday":1943.0,
+    "WMAE_vs_Champion_Delta":223.3,
+    "WMAE_Improvement_Pct":-11.23,
+    "Fit_Time_Sec":44.33,
+    "Forecast_Time_Sec":26.23,
+    "Status":"Phase 5 Reference"
+  }
+]

@@ -1,0 +1,55 @@
+{
+    "cold_start_count": 11,
+    "cold_start_pairs": [
+        [
+            5,
+            99
+        ],
+        [
+            9,
+            99
+        ],
+        [
+            10,
+            99
+        ],
+        [
+            18,
+            43
+        ],
+        [
+            24,
+            43
+        ],
+        [
+            25,
+            99
+        ],
+        [
+            34,
+            39
+        ],
+        [
+            36,
+            30
+        ],
+        [
+            37,
+            29
+        ],
+        [
+            42,
+            30
+        ],
+        [
+            45,
+            39
+        ]
+    ],
+    "total_active_series_train": 3331,
+    "complete_series_count": 2660,
+    "incomplete_series_count": 671,
+    "min_series_length": 1,
+    "median_series_length": 143,
+    "max_series_length": 143
+}

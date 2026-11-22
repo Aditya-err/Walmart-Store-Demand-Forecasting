@@ -1,0 +1,25 @@
+Model,Holiday_Event,Observations,WMAE,MAE
+Hierarchical Fallback Baseline,Thanksgiving (Week 47),3021,11684.15,11684.15
+Hierarchical Fallback Baseline,Christmas (Week 52),3003,6212.92,6212.92
+Hierarchical Fallback Baseline,Super Bowl (Week 6),3001,6484.33,6484.33
+Hierarchical Fallback Baseline,Labor Day (Week 36),2966,6127.56,6127.56
+Naive (Last Value),Thanksgiving (Week 47),3021,8323.52,8323.52
+Naive (Last Value),Christmas (Week 52),3003,3361.64,3361.64
+Naive (Last Value),Super Bowl (Week 6),3001,3245.29,3245.29
+Naive (Last Value),Labor Day (Week 36),2966,3732.07,3732.07
+Moving Average (4-Week),Thanksgiving (Week 47),3021,8337.5,8337.5
+Moving Average (4-Week),Christmas (Week 52),3003,3593.38,3593.38
+Moving Average (4-Week),Super Bowl (Week 6),3001,2614.11,2614.11
+Moving Average (4-Week),Labor Day (Week 36),2966,2830.13,2830.13
+Exponential Smoothing (SES),Thanksgiving (Week 47),3021,8335.47,8335.47
+Exponential Smoothing (SES),Christmas (Week 52),3003,3536.96,3536.96
+Exponential Smoothing (SES),Super Bowl (Week 6),3001,2940.37,2940.37
+Exponential Smoothing (SES),Labor Day (Week 36),2966,3240.62,3240.62
+Store-Dept Historical Median,Thanksgiving (Week 47),3021,8856.24,8856.24
+Store-Dept Historical Median,Christmas (Week 52),3003,3791.73,3791.73
+Store-Dept Historical Median,Super Bowl (Week 6),3001,3028.46,3028.46
+Store-Dept Historical Median,Labor Day (Week 36),2966,2697.96,2697.96
+Seasonal Naive (Lag 52),Thanksgiving (Week 47),3021,2377.97,2377.97
+Seasonal Naive (Lag 52),Christmas (Week 52),3003,2760.09,2760.09
+Seasonal Naive (Lag 52),Super Bowl (Week 6),3001,1901.94,1901.94
+Seasonal Naive (Lag 52),Labor Day (Week 36),2966,1820.57,1820.57

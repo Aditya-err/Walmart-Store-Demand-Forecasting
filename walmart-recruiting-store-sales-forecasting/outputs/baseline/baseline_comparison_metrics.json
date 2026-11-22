@@ -1,0 +1,68 @@
+[
+  {
+    "Model":"Seasonal Naive (Lag 52)",
+    "WMAE":1988.53,
+    "MAE":1917.65,
+    "RMSE":4178.57,
+    "WMAE_Holiday":2216.66,
+    "WMAE_NonHoliday":1892.47,
+    "WMAE_to_MAE_Ratio":1.037,
+    "Fit_Time_Sec":0.86,
+    "Pred_Time_Sec":3.0
+  },
+  {
+    "Model":"Moving Average (4-Week)",
+    "WMAE":3222.1,
+    "MAE":2870.22,
+    "RMSE":7819.67,
+    "WMAE_Holiday":4354.74,
+    "WMAE_NonHoliday":2745.21,
+    "WMAE_to_MAE_Ratio":1.1226,
+    "Fit_Time_Sec":0.39,
+    "Pred_Time_Sec":0.52
+  },
+  {
+    "Model":"Store-Dept Historical Median",
+    "WMAE":3292.26,
+    "MAE":2884.08,
+    "RMSE":8032.19,
+    "WMAE_Holiday":4606.11,
+    "WMAE_NonHoliday":2739.07,
+    "WMAE_to_MAE_Ratio":1.1415,
+    "Fit_Time_Sec":0.03,
+    "Pred_Time_Sec":0.54
+  },
+  {
+    "Model":"Exponential Smoothing (SES)",
+    "WMAE":3403.63,
+    "MAE":3055.78,
+    "RMSE":8184.31,
+    "WMAE_Holiday":4523.28,
+    "WMAE_NonHoliday":2932.2,
+    "WMAE_to_MAE_Ratio":1.1138,
+    "Fit_Time_Sec":22.02,
+    "Pred_Time_Sec":0.58
+  },
+  {
+    "Model":"Naive (Last Value)",
+    "WMAE":3663.62,
+    "MAE":3349.64,
+    "RMSE":8464.44,
+    "WMAE_Holiday":4674.24,
+    "WMAE_NonHoliday":3238.1,
+    "WMAE_to_MAE_Ratio":1.0937,
+    "Fit_Time_Sec":0.08,
+    "Pred_Time_Sec":0.59
+  },
+  {
+    "Model":"Hierarchical Fallback Baseline",
+    "WMAE":6620.61,
+    "MAE":6304.49,
+    "RMSE":12958.41,
+    "WMAE_Holiday":7638.15,
+    "WMAE_NonHoliday":6192.19,
+    "WMAE_to_MAE_Ratio":1.0501,
+    "Fit_Time_Sec":0.0,
+    "Pred_Time_Sec":0.47
+  }
+]

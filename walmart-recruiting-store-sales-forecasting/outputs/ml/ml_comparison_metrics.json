@@ -1,0 +1,54 @@
+[
+  {
+    "Model":"[Phase 4 Champion] Seasonal Naive (Lag 52)",
+    "WMAE":1988.53,
+    "MAE":1917.65,
+    "RMSE":4178.57,
+    "WMAE_Holiday":2216.66,
+    "WMAE_NonHoliday":1892.47,
+    "WMAE_vs_Champion_Delta":0.0,
+    "WMAE_Improvement_Pct":0.0,
+    "Fit_Time_Sec":0.86,
+    "Forecast_Time_Sec":3.0,
+    "Status":"Benchmark Baseline"
+  },
+  {
+    "Model":"LightGBM Regressor",
+    "WMAE":2211.83,
+    "MAE":2013.47,
+    "RMSE":5110.91,
+    "WMAE_Holiday":2850.33,
+    "WMAE_NonHoliday":1943.0,
+    "WMAE_vs_Champion_Delta":223.3,
+    "WMAE_Improvement_Pct":-11.23,
+    "Fit_Time_Sec":44.33,
+    "Forecast_Time_Sec":26.23,
+    "Status":"Behind Baseline"
+  },
+  {
+    "Model":"XGBoost Regressor",
+    "WMAE":2473.63,
+    "MAE":2192.41,
+    "RMSE":5807.57,
+    "WMAE_Holiday":3378.81,
+    "WMAE_NonHoliday":2092.51,
+    "WMAE_vs_Champion_Delta":485.1,
+    "WMAE_Improvement_Pct":-24.39,
+    "Fit_Time_Sec":48.75,
+    "Forecast_Time_Sec":22.46,
+    "Status":"Behind Baseline"
+  },
+  {
+    "Model":"CatBoost Regressor",
+    "WMAE":2658.5,
+    "MAE":2351.47,
+    "RMSE":6408.1,
+    "WMAE_Holiday":3646.77,
+    "WMAE_NonHoliday":2242.39,
+    "WMAE_vs_Champion_Delta":669.97,
+    "WMAE_Improvement_Pct":-33.69,
+    "Fit_Time_Sec":14.03,
+    "Forecast_Time_Sec":17.62,
+    "Status":"Behind Baseline"
+  }
+]

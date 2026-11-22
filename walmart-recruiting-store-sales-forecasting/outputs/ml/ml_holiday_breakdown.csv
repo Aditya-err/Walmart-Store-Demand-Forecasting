@@ -1,0 +1,13 @@
+Model,Holiday_Event,Observations,WMAE,MAE
+LightGBM Regressor,Thanksgiving (Week 47),3021,4672.49,4672.49
+LightGBM Regressor,Christmas (Week 52),3003,2799.38,2799.38
+LightGBM Regressor,Super Bowl (Week 6),3001,1850.27,1850.27
+LightGBM Regressor,Labor Day (Week 36),2966,2057.81,2057.81
+XGBoost Regressor,Thanksgiving (Week 47),3021,5978.93,5978.93
+XGBoost Regressor,Christmas (Week 52),3003,3436.19,3436.19
+XGBoost Regressor,Super Bowl (Week 6),3001,1972.32,1972.32
+XGBoost Regressor,Labor Day (Week 36),2966,2095.47,2095.47
+CatBoost Regressor,Thanksgiving (Week 47),3021,6732.93,6732.93
+CatBoost Regressor,Christmas (Week 52),3003,3118.05,3118.05
+CatBoost Regressor,Super Bowl (Week 6),3001,2162.12,2162.12
+CatBoost Regressor,Labor Day (Week 36),2966,2540.85,2540.85

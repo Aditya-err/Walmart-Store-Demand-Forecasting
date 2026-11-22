@@ -1,0 +1,95 @@
+{
+  "inner_split_date": "2011-08-26",
+  "inner_val_weeks": 10,
+  "optimal_global_alpha": 0.0,
+  "best_global_inner_wmae": 1402.33,
+  "optimal_holiday_alpha": 0.0,
+  "optimal_non_holiday_alpha": 0.0,
+  "best_segmented_inner_wmae": 1402.33,
+  "global_grid_search": [
+    {
+      "alpha": 0.0,
+      "inner_wmae": 1402.33
+    },
+    {
+      "alpha": 0.05,
+      "inner_wmae": 1404.02
+    },
+    {
+      "alpha": 0.1,
+      "inner_wmae": 1407.56
+    },
+    {
+      "alpha": 0.15,
+      "inner_wmae": 1413.07
+    },
+    {
+      "alpha": 0.2,
+      "inner_wmae": 1420.52
+    },
+    {
+      "alpha": 0.25,
+      "inner_wmae": 1429.73
+    },
+    {
+      "alpha": 0.3,
+      "inner_wmae": 1440.78
+    },
+    {
+      "alpha": 0.35,
+      "inner_wmae": 1453.5
+    },
+    {
+      "alpha": 0.4,
+      "inner_wmae": 1468.0
+    },
+    {
+      "alpha": 0.45,
+      "inner_wmae": 1484.34
+    },
+    {
+      "alpha": 0.5,
+      "inner_wmae": 1502.78
+    },
+    {
+      "alpha": 0.55,
+      "inner_wmae": 1522.73
+    },
+    {
+      "alpha": 0.6,
+      "inner_wmae": 1544.39
+    },
+    {
+      "alpha": 0.65,
+      "inner_wmae": 1567.8
+    },
+    {
+      "alpha": 0.7,
+      "inner_wmae": 1592.69
+    },
+    {
+      "alpha": 0.75,
+      "inner_wmae": 1619.02
+    },
+    {
+      "alpha": 0.8,
+      "inner_wmae": 1646.79
+    },
+    {
+      "alpha": 0.85,
+      "inner_wmae": 1675.81
+    },
+    {
+      "alpha": 0.9,
+      "inner_wmae": 1705.97
+    },
+    {
+      "alpha": 0.95,
+      "inner_wmae": 1737.17
+    },
+    {
+      "alpha": 1.0,
+      "inner_wmae": 1769.35
+    }
+  ]
+}
