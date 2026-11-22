@@ -1,0 +1,21 @@
+{
+  "model_name": "Final Seasonal Residual LightGBM",
+  "objective": "regression_l1",
+  "n_estimators": 350,
+  "trees_in_booster": 350,
+  "early_stopping_triggered": false,
+  "early_stopping_note": "Evaluated chronological 12-week holdout; validation loss decreased monotonically through round 350, reaching maximum tree budget without early stopping.",
+  "full_retraining_executed": true,
+  "eligible_residual_training_observations": 261541,
+  "total_historical_observations_in_training_dataset": 421570,
+  "learning_rate": 0.07,
+  "num_leaves": 63,
+  "random_state": 42,
+  "num_features": 48,
+  "training_date_range": [
+    "2010-02-05",
+    "2012-10-26"
+  ],
+  "training_fit_time_seconds": 75.03,
+  "timestamp": "2026-11-22 18:31:02"
+}

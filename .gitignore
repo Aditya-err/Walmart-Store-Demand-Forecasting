@@ -36,10 +36,27 @@ catboost_info/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 
-# Raw large dataset archives (preserved locally)
+# Raw large dataset archives & datasets (obtain from Kaggle as instructed in README)
 *.zip
 *.tar.gz
 *.tgz
+data/
+stores.csv
+features.csv
+train.csv
+test.csv
+sampleSubmission.csv
+
+# Internal Development Archive & Historical Working Folders (preserved locally)
+internal_archive/
+.internal_archive/
+walmart-recruiting-store-sales-forecasting/
+docs/
+reports/
+
+# Temporary logs & scratch
+scratch/
+*.log
 
 # OS Specific
 .DS_Store

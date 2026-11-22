@@ -1,6 +1,0 @@
-Model,WMAE,MAE,RMSE,WMAE_Holiday,WMAE_NonHoliday,WMAE_vs_Champion_Delta,WMAE_Improvement_Pct,Fit_Time_Sec,Forecast_Time_Sec,Status
-Seasonal Residual LightGBM,1878.37,1795.53,3906.52,2144.99,1766.11,-110.16,5.54,13.92,1.83,BEATS CHAMPION (NEW BEST!)
-Global Blended Ensemble (alpha=0.00),1878.37,1795.53,3906.52,2144.99,1766.11,-110.16,5.54,13.92,1.93,BEATS CHAMPION (NEW BEST!)
-"Holiday-Segmented Ensemble (hol=0.00, nh=0.00)",1878.37,1795.53,3906.52,2144.99,1766.11,-110.16,5.54,13.92,1.93,BEATS CHAMPION (NEW BEST!)
-[Phase 4 Champion] Seasonal Naive (Lag 52),1988.53,1917.65,4178.57,2216.66,1892.47,0.0,0.0,0.86,3.0,Phase 4 Benchmark
-[Phase 5 Best ML] Recursive LightGBM,2211.83,2013.47,5110.91,2850.33,1943.0,223.3,-11.23,44.33,26.23,Phase 5 Reference

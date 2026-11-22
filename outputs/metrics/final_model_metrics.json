@@ -1,0 +1,109 @@
+{
+  "phase": "Phase 7 - Final Test Horizon Forecasting & Kaggle Submission",
+  "champion_model": "Seasonal Residual LightGBM",
+  "training": {
+    "total_historical_dataset_observations": 421570,
+    "eligible_residual_observations_fitted": 261541,
+    "null_lag52_baseline_observations": 160029,
+    "trees_in_booster": 350,
+    "early_stopping_triggered": false,
+    "early_stopping_note": "Evaluated chronological 12-week holdout; validation loss decreased monotonically through round 350, reaching maximum tree budget without early stopping.",
+    "full_retraining_executed": true,
+    "date_range": [
+      "2010-02-05",
+      "2012-10-26"
+    ],
+    "training_weeks": 143,
+    "fit_time_seconds": 75.03
+  },
+  "test_horizon": {
+    "observations": 115064,
+    "date_range": [
+      "2012-11-02",
+      "2013-07-26"
+    ],
+    "horizon_weeks": 39,
+    "inference_time_seconds": 1.12
+  },
+  "forecast_distribution": {
+    "count": 115064,
+    "mean": 16284.7,
+    "std": 23760.43,
+    "min": -970.84,
+    "p25": 1758.07,
+    "median": 7332.49,
+    "p75": 20582.95,
+    "p95": 63242.25,
+    "p99": 108956.92,
+    "max": 629626.85,
+    "total_predicted_sales": 1873782864.47
+  },
+  "cold_start_handling": {
+    "missing_lag52_observations": 2041,
+    "missing_lag52_pct": 1.77,
+    "mean_cold_start_prediction": 1783.47,
+    "median_cold_start_prediction": 107.02
+  },
+  "negative_sales_investigation": {
+    "negative_predictions_count": 723,
+    "negative_predictions_pct": 0.63,
+    "negative_min": -970.84,
+    "negative_mean": -47.65,
+    "interpretation": "Negative aggregated weekly sales forecasts resulting from unconstrained residual adjustments on low-volume departments",
+    "top_negative_departments": [
+      99,
+      49,
+      59,
+      18,
+      12
+    ]
+  },
+  "sliced_forecast_stats": {
+    "by_store_type": {
+      "A": {
+        "observations": 58713,
+        "mean_predicted_sales": 20622.26,
+        "median_predicted_sales": 9918.92,
+        "total_predicted_sales": 1210794464.0
+      },
+      "B": {
+        "observations": 44500,
+        "mean_predicted_sales": 12340.62,
+        "median_predicted_sales": 6065.84,
+        "total_predicted_sales": 549157720.51
+      },
+      "C": {
+        "observations": 11851,
+        "mean_predicted_sales": 9605.15,
+        "median_predicted_sales": 669.97,
+        "total_predicted_sales": 113830679.96
+      }
+    },
+    "by_holiday": {
+      "NonHoliday": {
+        "observations": 106136,
+        "mean_predicted_sales": 16132.96,
+        "median_predicted_sales": 7276.15,
+        "total_predicted_sales": 1712287699.59
+      },
+      "Holiday": {
+        "observations": 8928,
+        "mean_predicted_sales": 18088.62,
+        "median_predicted_sales": 8217.39,
+        "total_predicted_sales": 161495164.88
+      }
+    }
+  },
+  "submission_validation": {
+    "file_name": "submission.csv",
+    "exact_row_count_match": true,
+    "exact_id_order_match": true,
+    "zero_nulls": true,
+    "zero_infinite": true,
+    "zero_duplicates": true,
+    "correct_schema": [
+      "Id",
+      "Weekly_Sales"
+    ]
+  }
+}

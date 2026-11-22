@@ -1,5 +1,0 @@
-Model,WMAE,MAE,RMSE,WMAE_Holiday,WMAE_NonHoliday,WMAE_vs_Champion_Delta,WMAE_Improvement_Pct,Fit_Time_Sec,Forecast_Time_Sec,Status
-[Phase 4 Champion] Seasonal Naive (Lag 52),1988.53,1917.65,4178.57,2216.66,1892.47,0.0,0.0,0.86,3.0,Benchmark Baseline
-LightGBM Regressor,2211.83,2013.47,5110.91,2850.33,1943.0,223.3,-11.23,44.33,26.23,Behind Baseline
-XGBoost Regressor,2473.63,2192.41,5807.57,3378.81,2092.51,485.1,-24.39,48.75,22.46,Behind Baseline
-CatBoost Regressor,2658.5,2351.47,6408.1,3646.77,2242.39,669.97,-33.69,14.03,17.62,Behind Baseline
