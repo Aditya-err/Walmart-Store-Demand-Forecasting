@@ -35,18 +35,20 @@ The system solves the critical retail problem of **compounding autoregressive dr
 ## 📖 Table of Contents
 1. [Business Problem & Challenge](#-business-problem--the-retail-challenge)
 2. [Dataset & Ingestion Schema](#-dataset--data-architecture)
-3. [Exploratory Data Analysis & Business Insights](#-exploratory-data-analysis--business-insights)
-4. [System Architecture & Pipeline](#-system-architecture--pipeline-workflow)
-5. [Feature Engineering & Leakage Prevention](#-feature-engineering--leakage-prevention)
-6. [Why Recursive ML Failed: The Drift Dilemma](#-why-recursive-ml-failed-the-drift-dilemma)
-7. [The Champion: Seasonal Residual LightGBM](#-the-champion-seasonal-residual-lightgbm)
-8. [Model Leaderboard & Validation Results](#-model-leaderboard--validation-results)
-9. [Final Kaggle Competition Submission](#-final-kaggle-competition-submission)
-10. [Repository Structure](#-repository-structure)
-11. [Testing & Code Quality](#-testing--code-quality)
-12. [Reproduction & Installation Guide](#-reproduction--installation-guide)
-13. [Tech Stack & Engineering Skills](#-tech-stack--engineering-competencies)
-14. [Author & Contact](#-author--connect)
+3. [Exploratory Data Analysis & Visual Insights](#-exploratory-data-analysis--visual-insights)
+4. [Time-Series Dynamics & Decomposition](#-time-series-dynamics--decomposition)
+5. [System Architecture & Pipeline](#-system-architecture--pipeline-workflow)
+6. [Feature Engineering & Leakage Prevention](#-feature-engineering--leakage-prevention)
+7. [Why Recursive ML Failed: The Drift Dilemma](#-why-recursive-ml-failed-the-drift-dilemma)
+8. [The Champion: Seasonal Residual LightGBM](#-the-champion-seasonal-residual-lightgbm)
+9. [Model Leaderboard & Validation Results](#-model-leaderboard--validation-results)
+10. [Final Kaggle Competition Submission](#-final-kaggle-competition-submission)
+11. [Visual Analytics & Output Figures Gallery](#-visual-analytics--output-figures-gallery)
+12. [Repository Structure](#-repository-structure)
+13. [Testing & Code Quality](#-testing--code-quality)
+14. [Reproduction & Installation Guide](#-reproduction--installation-guide)
+15. [Tech Stack & Engineering Skills](#-tech-stack--engineering-competencies)
+16. [Author & Contact](#-author--connect)
 
 ---
 
@@ -86,6 +88,8 @@ The project utilizes data from the official Kaggle competition: [Walmart Recruit
 
 <p align="center">
   <img src="outputs/figures/fig01_dataset_timeline_overview.png" alt="Walmart Dataset Timeline Overview" width="95%"/>
+  <br/>
+  <em>Figure 1: Complete Dataset Timeline Overview illustrating training period, 52-week chronological holdout validation window, and the 39-week out-of-sample competition test horizon.</em>
 </p>
 
 | Dataset Source | Records | Schema / Columns | Temporal Coverage | Role in Forecasting Engine |
@@ -97,14 +101,28 @@ The project utilizes data from the official Kaggle competition: [Walmart Recruit
 
 ---
 
-## 🧠 Exploratory Data Analysis & Business Insights
+## 🧠 Exploratory Data Analysis & Visual Insights
 
-### 1. Store Format Efficiency & Sales Density
+### 1. Sales Distribution & Negative Sales Audit
+Weekly sales exhibit severe positive skewness with extreme holiday outliers alongside negative return records:
+
+| **Weekly Sales Distribution (Raw vs. Signed Log1p)** | **Top Departments with Negative Sales (Returns)** |
+| :---: | :---: |
+| <img src="outputs/figures/fig02_sales_distribution_and_log.png" alt="Sales Distribution" width="100%"/> | <img src="outputs/figures/fig03_negative_sales_by_dept.png" alt="Negative Sales by Department" width="100%"/> |
+| *Severe right skewness (3.262) & heavy tails (kurtosis 21.491); normalized with signed log transform.* | *1,285 negative weekly sales records concentrate heavily in Depts 47 (254), 18 (180), and 54 (146).* |
+
+- **Distribution Characteristics:** Mean weekly sales are **$15,981.26** while the median is **$7,612.03**, demonstrating strong positive skewness driven by large departments during holiday peaks.
+- **Negative Sales Findings:** Exactly **1,285 rows (0.3048%)** record negative sales. These represent legitimate customer refunds and inventory adjustments. Clipping them to zero would artificially bias revenue forecasts upward, so they are strictly preserved.
+
+---
+
+### 2. Store Format Efficiency & Sales Density
 Analyzing enterprise revenue ($6,737,218,987.11 total historical sales) across store formats reveals an unexpected operational efficiency:
 
-<p align="center">
-  <img src="outputs/figures/fig05_store_type_size_vs_sales.png" alt="Store Type Size vs Sales" width="95%"/>
-</p>
+| **Store Size vs. Mean Sales by Type** | **Store Sales Ranking (Top 45 Stores)** |
+| :---: | :---: |
+| <img src="outputs/figures/fig05_store_type_size_vs_sales.png" alt="Store Type Size vs Sales" width="100%"/> | <img src="outputs/figures/fig04_store_sales_ranking.png" alt="Store Sales Ranking" width="100%"/> |
+| *Type A Supercenters dominate volume, but Type C achieves highest revenue density per square foot.* | *Store 20, Store 4, and Store 14 lead enterprise volume; Store 33 and Store 44 represent compact formats.* |
 
 - **Type A (Supercenters, 22 stores):** Generates **64.28%** of enterprise revenue ($4.331B) with an average sales density of **$7.77 / sq ft / week**.
 - **Type B (Medium Format, 17 stores):** Generates **29.70%** of enterprise revenue ($2.001B) with a sales density of **$8.13 / sq ft / week**.
@@ -112,34 +130,49 @@ Analyzing enterprise revenue ($6,737,218,987.11 total historical sales) across s
 
 ---
 
-### 2. Department Revenue Concentration (Pareto 80/20 Rule)
-Sales concentration is heavily skewed toward essential departments:
+### 3. Department Revenue Concentration (Pareto 80/20 Rule)
+Sales concentration is heavily skewed toward essential everyday departments:
 
-<p align="center">
-  <img src="outputs/figures/fig07_sales_concentration_pareto.png" alt="Sales Concentration Pareto Analysis" width="95%"/>
-</p>
+| **Top 8 & Bottom 5 Departments by Total Revenue** | **Pareto Analysis: Cumulative Sales Concentration** |
+| :---: | :---: |
+| <img src="outputs/figures/fig06_top_bottom_departments_revenue.png" alt="Top and Bottom Departments" width="100%"/> | <img src="outputs/figures/fig07_sales_concentration_pareto.png" alt="Pareto Concentration Analysis" width="100%"/> |
+| *Top departments: Dept 92 (Grocery, $483.9M), Dept 95 (Snacks, $449.3M), Dept 38 (Pharmacy, $393.1M).* | *Top 10 departments generate 46.03% of enterprise sales; top 20% generate 78.4% of total sales.* |
 
-- **Top 10 Departments:** Account for **46.03%** of all historical sales ($3.101B), dominated by **Dept 92 (Dry Grocery, 7.18%)**, **Dept 95 (DSD Snacks & Beverage, 6.67%)**, and **Dept 38 (Pharmacy, 5.84%)**.
-- **The Top 20% of Departments:** Generate **78.4%** of total enterprise sales, confirming classical Pareto behavior in department store dynamics.
+- **Top 10 Departments:** Account for **46.03%** of all historical sales ($3.101B), led by **Dept 92 (Dry Grocery, 7.18%)**, **Dept 95 (DSD Snacks & Beverage, 6.67%)**, and **Dept 38 (Pharmacy, 5.84%)**.
+- **The Top 20% of Departments:** Generate **78.4%** of total enterprise sales, confirming classical Pareto behavior in retail department store dynamics.
 
 ---
 
-### 3. Holiday Surge Dynamics & The Pre-Christmas Shopping Shift
+### 4. Holiday Surge Dynamics & The Pre-Christmas Shopping Shift
 Evaluating sales across major promotional holiday events reveals distinct shopping behaviors:
 
-<p align="center">
-  <img src="outputs/figures/fig12_holiday_sales_uplift_comparison.png" alt="Holiday Sales Uplift Comparison" width="95%"/>
-</p>
+| **Major Holiday Uplift vs. Non-Holiday Baseline** | **The Pre-Christmas Shopping Surge (Weeks 49-51)** |
+| :---: | :---: |
+| <img src="outputs/figures/fig12_holiday_sales_uplift_comparison.png" alt="Holiday Sales Uplift" width="100%"/> | <img src="outputs/figures/fig13_pre_christmas_effect_analysis.png" alt="Pre-Christmas Effect Analysis" width="100%"/> |
+| *Thanksgiving / Black Friday delivers +40.89% uplift over non-holiday baseline in documented 2010 comparisons.* | *Peak holiday volume occurs 1 to 2 weeks BEFORE Christmas (+55%), moderating on Christmas week itself.* |
 
 - **Thanksgiving / Black Friday:** Triggers an immediate weekly sales surge of **approximately 40.89%** over the non-holiday baseline in documented 2010 row-level comparisons ($22,403.34 vs $15,901.45; **+41.30%** in enterprise weekly volume).
-- **The Christmas Shift Phenomenon:** Unlike Thanksgiving where the spike occurs on the exact holiday week, peak Christmas consumer spending occurs **1 to 2 weeks before Christmas Day** (**+55% surge in pre-Christmas weeks**). The actual Christmas week moderates due to store closures on December 25th.
+- **The Christmas Shift Phenomenon:** Unlike Thanksgiving where the spike occurs on the exact holiday week, peak Christmas consumer spending occurs **1 to 2 weeks before Christmas Day** (**+55% surge in pre-Christmas weeks 50 and 51**). The actual Christmas week moderates due to store closures on December 25th.
 
 ---
 
-### 4. Negative Sales Forensic Audit
-- Exactly **1,285 rows (0.3048%)** in the historical dataset record negative weekly sales.
-- Rather than representing data corruption, negative sales concentrate heavily in **Department 47 (254 occurrences)**, **Department 18 (180 occurrences)**, and **Department 54 (146 occurrences)**, reflecting customer merchandise returns, post-holiday refunds, and inter-store inventory reconciliation.
-- **Pipeline Strategy:** Negative sales are strictly preserved to maintain unbiased expected value estimation.
+## 📈 Time-Series Dynamics & Decomposition
+
+Time series decomposition using **STL (Seasonal and Trend decomposition using Loess)** confirms the structural components of Walmart sales:
+
+<p align="center">
+  <img src="outputs/figures/fig16_stl_decomposition_aggregate_sales.png" alt="STL Time Series Decomposition" width="95%"/>
+  <br/>
+  <em>Figure 2: STL Decomposition of aggregate weekly sales into baseline trend, annual seasonal harmonics, and irregular residual components.</em>
+</p>
+
+| **Year-over-Year 52-Week Periodic Overlay** | **Store Format Trend Comparison Over Time** |
+| :---: | :---: |
+| <img src="outputs/figures/fig09_yoy_weekly_sales_overlay.png" alt="Year-over-Year Sales Overlay" width="100%"/> | <img src="outputs/figures/fig10_store_type_trends_comparison.png" alt="Store Type Trends Comparison" width="100%"/> |
+| *Perfect temporal alignment of Thanksgiving (W47) and Pre-Christmas (W51) peaks year-over-year.* | *Stable macroeconomic revenue trends across Type A, B, and C formats throughout 2010–2012.* |
+
+- **Stationarity Analysis:** Augmented Dickey-Fuller (ADF) tests on aggregate sales yield a test statistic of **-5.46 (p-value < 0.0001)**, confirming that weekly sales differenced by 52 weeks are strictly stationary.
+- **52-Week Periodicity:** The YoY overlay reveals that the exact week of peak volume reproduces with extraordinary fidelity across consecutive years, providing the core mathematical motivation for the **Seasonal Anchor**.
 
 ---
 
@@ -186,6 +219,11 @@ flowchart TD
 
 The model employs exactly **48 predictor features** adhering to the **Strict Shift-1 Principle** ($\text{Feature}_t = f(\text{Data}_{t-1})$), guaranteeing zero target leakage:
 
+| **Promotional Markdowns Temporal Availability** | **Macroeconomic Correlation Matrix** |
+| :---: | :---: |
+| <img src="outputs/figures/fig14_markdown_temporal_availability.png" alt="Markdown Temporal Availability" width="100%"/> | <img src="outputs/figures/fig15_economic_features_correlation_matrix.png" alt="Economic Features Correlation Matrix" width="100%"/> |
+| *Markdowns are completely unobserved prior to Nov 2011; missingness indicators prevent feature leakage.* | *Moderate correlation between CPI & Unemployment (-0.30) and Fuel Price with Temperature (0.14).* |
+
 ```
 Total Predictor Matrix: 48 Features
 ├── 📅 Calendar & Cyclical (8 Features)
@@ -223,10 +261,6 @@ Total Predictor Matrix: 48 Features
 In Phase 5, state-of-the-art recursive GBDT regressors (LightGBM, XGBoost, CatBoost) were trained to forecast sales step-by-step. Despite extensive hyperparameter tuning, **all recursive ML models lost decisively to simple Seasonal Naive**:
 - **Seasonal Naive WMAE:** **$1,988.53**
 - **Recursive LightGBM WMAE:** **$2,211.83 (+11.23% higher error)**
-
-<p align="center">
-  <img src="outputs/figures/fig09_yoy_weekly_sales_overlay.png" alt="Year-over-Year Seasonal Periodicity" width="95%"/>
-</p>
 
 ### Root Cause Analysis via SHAP Interpretability:
 1. **Autoregressive Feature Dominance:** Feature attribution revealed that tree boosters allocated **51.35% of total mean absolute SHAP value to `Sales_Lag_1`** (with a 62.07% feature gain share).
@@ -304,6 +338,33 @@ Following chronological model validation, the champion Seasonal Residual LightGB
   - Median Predicted Sales: **$7,332.49**
   - Min / Max Prediction: **-$970.84** / **$629,626.85** (Thanksgiving Electronics surge)
   - Negative Predictions: **723 rows (0.63%)**, matching historical refund rates in low-volume departments.
+
+---
+
+## 🖼️ Visual Analytics & Output Figures Gallery
+
+A comprehensive visual reference of all 18 publication-quality analytical figures produced by the pipeline:
+
+| Figure Preview | Figure Title & Artifact Path | Core Business & Modeling Takeaway |
+| :---: | :--- | :--- |
+| <img src="outputs/figures/fig01_dataset_timeline_overview.png" width="280"/> | **Fig 01: Dataset Timeline Overview**<br/>`outputs/figures/fig01_dataset_timeline_overview.png` | Illustrates the 143-week historical span, the 52-week validation split, and the 39-week test horizon. |
+| <img src="outputs/figures/fig02_sales_distribution_and_log.png" width="280"/> | **Fig 02: Sales Distribution & Signed Log**<br/>`outputs/figures/fig02_sales_distribution_and_log.png` | Visualizes the severe positive skewness (3.26) and log1p transformation preserving negative returns. |
+| <img src="outputs/figures/fig03_negative_sales_by_dept.png" width="280"/> | **Fig 03: Negative Sales by Department**<br/>`outputs/figures/fig03_negative_sales_by_dept.png` | Confirms negative sales concentrate in Depts 47, 18, and 54 due to returns and inventory reconciliation. |
+| <img src="outputs/figures/fig04_store_sales_ranking.png" width="280"/> | **Fig 04: Store Total Revenue Ranking**<br/>`outputs/figures/fig04_store_sales_ranking.png` | Compares total revenue across all 45 stores, led by Store 20 ($301.4M) and Store 4 ($299.5M). |
+| <img src="outputs/figures/fig05_store_type_size_vs_sales.png" width="280"/> | **Fig 05: Store Type Size vs. Sales**<br/>`outputs/figures/fig05_store_type_size_vs_sales.png` | Demonstrates that Type C small grocery stores achieve 50.1% higher sales density ($11.66/sq ft). |
+| <img src="outputs/figures/fig06_top_bottom_departments_revenue.png" width="280"/> | **Fig 06: Top & Bottom Departments**<br/>`outputs/figures/fig06_top_bottom_departments_revenue.png` | Highlights essential departments (Dept 92, 95, 38) generating over $1.3B combined. |
+| <img src="outputs/figures/fig07_sales_concentration_pareto.png" width="280"/> | **Fig 07: Pareto Sales Concentration**<br/>`outputs/figures/fig07_sales_concentration_pareto.png` | Proves the 80/20 rule: top 20% of departments generate 78.4% of all Walmart historical revenue. |
+| <img src="outputs/figures/fig08_aggregate_weekly_sales_trend.png" width="280"/> | **Fig 08: Aggregate Weekly Sales Trend**<br/>`outputs/figures/fig08_aggregate_weekly_sales_trend.png` | Highlights massive revenue surges during Thanksgiving ($68M+) and Christmas ($80M+). |
+| <img src="outputs/figures/fig09_yoy_weekly_sales_overlay.png" width="280"/> | **Fig 09: YoY Weekly Sales Overlay**<br/>`outputs/figures/fig09_yoy_weekly_sales_overlay.png` | Shows strict 52-week synchronicity between 2010, 2011, and 2012 holiday shopping peaks. |
+| <img src="outputs/figures/fig10_store_type_trends_comparison.png" width="280"/> | **Fig 10: Store Type Trend Comparison**<br/>`outputs/figures/fig10_store_type_trends_comparison.png` | Tracks revenue trajectories across Type A, B, and C formats throughout the economic cycle. |
+| <img src="outputs/figures/fig11_department_seasonality_comparison.png" width="280"/> | **Fig 11: Department Seasonality Comparison**<br/>`outputs/figures/fig11_department_seasonality_comparison.png` | Compares seasonal volatility in Toy/Electronics (Dept 72) vs. stable Grocery (Dept 92). |
+| <img src="outputs/figures/fig12_holiday_sales_uplift_comparison.png" width="280"/> | **Fig 12: Holiday Sales Uplift Comparison**<br/>`outputs/figures/fig12_holiday_sales_uplift_comparison.png` | Quantifies +40.89% uplift for Thanksgiving and +55% for pre-Christmas shopping weeks. |
+| <img src="outputs/figures/fig13_pre_christmas_effect_analysis.png" width="280"/> | **Fig 13: Pre-Christmas Shopping Shift**<br/>`outputs/figures/fig13_pre_christmas_effect_analysis.png` | Proves consumer shopping peaks 1 to 2 weeks prior to Christmas rather than Christmas week. |
+| <img src="outputs/figures/fig14_markdown_temporal_availability.png" width="280"/> | **Fig 14: Markdown Availability Era**<br/>`outputs/figures/fig14_markdown_temporal_availability.png` | Details the structural data break: markdowns appear exclusively after November 2011. |
+| <img src="outputs/figures/fig15_economic_features_correlation_matrix.png" width="280"/> | **Fig 15: Economic Correlation Matrix**<br/>`outputs/figures/fig15_economic_features_correlation_matrix.png` | Pearson & Spearman correlation between CPI, Unemployment, Fuel Price, and Temperature. |
+| <img src="outputs/figures/fig16_stl_decomposition_aggregate_sales.png" width="280"/> | **Fig 16: STL Decomposition**<br/>`outputs/figures/fig16_stl_decomposition_aggregate_sales.png` | Disentangles macro trend, seasonal harmonic oscillation, and irregular white noise. |
+| <img src="outputs/figures/fig17_panel_sparsity_distribution.png" width="280"/> | **Fig 17: Multi-Series Panel Sparsity**<br/>`outputs/figures/fig17_panel_sparsity_distribution.png` | Profiles observation lengths across 3,331 store-dept series, quantifying cold-start frequency. |
+| <img src="outputs/figures/fig18_test_cpi_unemployment_blackout.png" width="280"/> | **Fig 18: CPI / Unemployment Blackout**<br/>`outputs/figures/fig18_test_cpi_unemployment_blackout.png` | Analyzes missing economic indicators in final 13 weeks of test set, validating forward-fill. |
 
 ---
 
