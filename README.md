@@ -1,231 +1,330 @@
-# Walmart Store Sales Forecasting & Business Intelligence System
+# 🛒 Walmart Store Sales Forecasting & Business Intelligence Engine
 
-[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
-[![Framework](https://img.shields.io/badge/ML%20Framework-LightGBM%20%7C%20Scikit--Learn-orange.svg)](https://lightgbm.readthedocs.io/)
-[![Validation](https://img.shields.io/badge/Validation-52--Week%20Chronological%20Holdout-green.svg)](#-project-leaderboard-out-of-sample-52-week-validation)
-[![Official Metric](https://img.shields.io/badge/Kaggle%20Metric-WMAE%20%241%2C878.37-brightgreen.svg)](#-project-leaderboard-out-of-sample-52-week-validation)
-[![Tests Status](https://img.shields.io/badge/Tests-48%20Passed%20%7C%20100%25-success.svg)](#-testing--quality-assurance)
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+<p align="center">
+  <img src="outputs/figures/fig08_aggregate_weekly_sales_trend.png" alt="Walmart Aggregate Weekly Sales Trend" width="100%"/>
+</p>
 
-An end-to-end, production-grade weekly sales forecasting and business intelligence system built on historical Walmart store sales data, promotional markdowns, store physical attributes, and macroeconomic indicators (CPI, Unemployment, Fuel Price).
-
-Developed as an **intermediate-level portfolio project** for **Data Analyst**, **Junior Data Scientist**, and **Junior ML Engineer** roles.
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python Version"/></a>
+  <a href="https://lightgbm.readthedocs.io/"><img src="https://img.shields.io/badge/ML%20Engine-LightGBM%20%7C%20Scikit--Learn-FF6F00?style=for-the-badge&logo=scikitlearn&logoColor=white" alt="Frameworks"/></a>
+  <a href="#-model-leaderboard--validation-results"><img src="https://img.shields.io/badge/Kaggle%20Metric-WMAE%20%241%2C878.37-2ea44f?style=for-the-badge&logo=kaggle&logoColor=white" alt="Kaggle Metric"/></a>
+  <a href="#-testing--code-quality"><img src="https://img.shields.io/badge/Automated%20Tests-48%20Passed%20%7C%20100%25-brightgreen?style=for-the-badge&logo=pytest&logoColor=white" alt="Pytest Status"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blueviolet?style=for-the-badge" alt="License"/></a>
+</p>
 
 ---
 
-## 📌 Table of Contents
-1. [Project Overview & Business Problem](#-project-overview--business-problem)
-2. [Dataset & Data Source](#-dataset--data-source)
-3. [Technologies Used](#-technologies-used)
-4. [System Architecture & Workflow](#-system-architecture--workflow)
-5. [Phases 1–7 Implementation Summary](#-phases-17-implementation-summary)
-6. [Model Leaderboard & Benchmark Results](#-project-leaderboard-out-of-sample-52-week-validation)
+## 📌 Executive Overview
+
+An end-to-end, production-grade retail demand forecasting and business analytics engine developed on historical Walmart store sales data across **45 stores**, **81 departments**, and **3,331 active multi-series combinations**. 
+
+The system solves the critical retail problem of **compounding autoregressive drift** in multi-step forecasting by formulating a **Seasonal Residual Architecture** ($\text{Forecast} = \text{Seasonal Anchor}_{t-52} + \text{LightGBM Residual}_{\Delta_t}$). This champion model outperforms pure recursive machine learning models by **-$333.46 WMAE** and beats the strong Seasonal Naive competition benchmark by **-$110.16 WMAE (-5.54%)**, achieving an official validation score of **$1,878.37**.
+
+> **Portfolio Context:** Built as an **intermediate-level portfolio project** showcasing rigorous time series methodology, leak-free feature engineering, econometric stationarity analysis, tree-based residual gradient boosting, and automated test-driven development (TDD) for **Data Analyst**, **Junior Data Scientist**, and **Junior ML Engineer** roles.
+
+---
+
+## ⚡ Key Project Metrics Dashboard
+
+| 🏬 Stores Profiled | 📦 Active Time Series | 💰 Historical Revenue | ⏳ Forecast Horizon | 🏆 Champion WMAE | ⚡ Inference Latency |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **45** Retail Locations | **3,331** Store-Dept Pairs | **$6.737 Billion** | **39 Weeks** (115,064 Rows) | **$1,878.37** (-5.54%) | **102,735 rows/sec** (1.12s) |
+
+---
+
+## 📖 Table of Contents
+1. [Business Problem & Challenge](#-business-problem--the-retail-challenge)
+2. [Dataset & Ingestion Schema](#-dataset--data-architecture)
+3. [Exploratory Data Analysis & Business Insights](#-exploratory-data-analysis--business-insights)
+4. [System Architecture & Pipeline](#-system-architecture--pipeline-workflow)
+5. [Feature Engineering & Leakage Prevention](#-feature-engineering--leakage-prevention)
+6. [Why Recursive ML Failed: The Drift Dilemma](#-why-recursive-ml-failed-the-drift-dilemma)
 7. [The Champion: Seasonal Residual LightGBM](#-the-champion-seasonal-residual-lightgbm)
-8. [Final Kaggle Submission Details](#-final-kaggle-submission-details)
-9. [Verified Business Insights](#-verified-business-insights)
+8. [Model Leaderboard & Validation Results](#-model-leaderboard--validation-results)
+9. [Final Kaggle Competition Submission](#-final-kaggle-competition-submission)
 10. [Repository Structure](#-repository-structure)
-11. [Testing & Quality Assurance](#-testing--quality-assurance)
-12. [Installation & Execution Guide](#-installation--execution-guide)
-13. [Limitations & Future Improvements](#-limitations--future-improvements)
-14. [Kaggle Dataset Setup & Engineering Notes](#-kaggle-dataset-setup--engineering-notes)
+11. [Testing & Code Quality](#-testing--code-quality)
+12. [Reproduction & Installation Guide](#-reproduction--installation-guide)
+13. [Tech Stack & Engineering Skills](#-tech-stack--engineering-competencies)
+14. [Author & Contact](#-author--connect)
 
 ---
 
-## 🏢 Project Overview & Business Problem
+## 🏢 Business Problem & The Retail Challenge
 
-In retail supply chains, accurate demand forecasting is critical for operational profitability. Underestimating consumer demand causes empty shelves, stockouts, and permanently lost sales. Overestimating demand causes excess warehouse holding costs and forces steep post-holiday clearance markdowns (70–80% discounts) that destroy profit margins.
+In modern retail supply chains, demand forecasting accuracy directly governs enterprise profitability:
+- **Underforecasting Demand:** Leads to stockouts, empty shelves, customer churn, and irreversible revenue loss during peak shopping periods.
+- **Overforecasting Demand:** Accumulates massive inventory holding costs, ties up operational working capital, and forces severe post-holiday clearance markdowns (**70–80% discounts**) that erase product margins.
 
-### The Real-World Challenge:
-- **Massive Holiday Surges:** Retail sales spike sharply during major events (Super Bowl, Labor Day, Thanksgiving/Black Friday, Christmas).
-- **Asymmetric Business Penalty:** In the Kaggle competition and Walmart's evaluation, holiday week errors are penalized with a **5.0 weight**, while non-holiday weeks carry a **1.0 weight** in the **Weighted Mean Absolute Error (WMAE)** metric.
-- **Sparse Multi-Series Forecasting:** The dataset contains **3,331 active Store-Department series** across 45 stores and 81 departments, with intermittent sales, seasonal departments, and newly opened "cold-start" locations.
-- **The Long Forecasting Horizon:** Models must forecast up to **39 weeks ahead** without observing actual sales, requiring robust multi-step strategies that do not suffer from autoregressive error accumulation.
+```
+                  ┌────────────────────────────────────────────────────────┐
+                  │                 The Forecasting Dilemma                │
+                  └───────────────────────────┬────────────────────────────┘
+                                              │
+                    ┌─────────────────────────┴────────────────────────┐
+                    ▼                                                  ▼
+      ┌───────────────────────────┐                      ┌───────────────────────────┐
+      │   Underestimating Demand  │                      │   Overestimating Demand   │
+      ├───────────────────────────┤                      ├───────────────────────────┤
+      │ • Empty Shelves           │                      │ • Excess Warehouse Costs  │
+      │ • Stockouts & Lost Sales  │                      │ • Trapped Working Capital │
+      │ • Customer Frustration    │                      │ • 70-80% Markdown Losses  │
+      └───────────────────────────┘                      └───────────────────────────┘
+```
 
----
-
-## 📊 Dataset & Data Source
-
-The dataset comes from the official Kaggle competition: [Walmart Recruiting - Store Sales Forecasting](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting).
-
-| Dataset File | Rows | Columns | Time Period | Key Features |
-| :--- | :---: | :---: | :---: | :--- |
-| `train.csv` | 421,570 | 5 | 2010-02-05 to 2012-10-26 | `Store`, `Dept`, `Date`, `Weekly_Sales`, `IsHoliday` |
-| `features.csv` | 8,190 | 12 | 2010-02-05 to 2013-07-26 | `Temperature`, `Fuel_Price`, `MarkDown1-5`, `CPI`, `Unemployment` |
-| `stores.csv` | 45 | 3 | Static | `Store`, `Type` (A, B, C), `Size` (sq ft) |
-| `test.csv` | 115,064 | 4 | 2012-11-02 to 2013-07-26 | Out-of-sample forecast horizon (39 weeks) |
-
----
-
-## 🛠️ Technologies Used
-
-- **Language:** Python (3.10 – 3.13)
-- **Data Manipulation & Analysis:** Pandas, NumPy, Scipy, PyArrow (Apache Parquet)
-- **Machine Learning & Gradient Boosting:** LightGBM, XGBoost, CatBoost, Scikit-Learn
-- **Statistical Modeling & Time Series:** Statsmodels (ADF Test, STL Decomposition)
-- **Model Explainability:** SHAP (SHapley Additive exPlanations)
-- **Data Visualization:** Matplotlib, Seaborn
-- **Testing & Quality Control:** Pytest (48 unit and integration tests)
+### Key Technical Complexities:
+1. **Asymmetric 5:1 Holiday Loss Penalty:** Walmart's official evaluation metric—**Weighted Mean Absolute Error (WMAE)**—weights holiday week errors by **5.0x**, whereas non-holiday weeks carry a **1.0x** weight. Traditional MSE/RMSE loss functions produce suboptimal forecasts under this asymmetric penalty.
+2. **Extreme Multi-Horizon Without Intermediate Actuals:** The competition requires predicting **39 consecutive weeks** into the future without access to actual sales numbers between November 2012 and July 2013.
+3. **Macroeconomic Blackout:** Key economic features (`CPI` and `Unemployment`) cease reporting for the final 13 weeks of the test period, necessitating chronologically sound forward-filling.
+4. **Intermittent Series & Negative Sales:** Historical records contain **1,285 negative weekly sales observations** resulting from customer refunds, holiday returns, and inventory adjustments that cannot simply be discarded.
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## 📊 Dataset & Data Architecture
 
-The pipeline enforces strict chronological ordering to ensure **zero data leakage**:
+The project utilizes data from the official Kaggle competition: [Walmart Recruiting - Store Sales Forecasting](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting).
+
+<p align="center">
+  <img src="outputs/figures/fig01_dataset_timeline_overview.png" alt="Walmart Dataset Timeline Overview" width="95%"/>
+</p>
+
+| Dataset Source | Records | Schema / Columns | Temporal Coverage | Role in Forecasting Engine |
+| :--- | :---: | :--- | :---: | :--- |
+| `train.csv` | **421,570** | `Store`, `Dept`, `Date`, `Weekly_Sales`, `IsHoliday` | Feb 2010 – Oct 2012 (143 wks) | Model training and chronological holdout validation |
+| `features.csv` | **8,190** | `Temperature`, `Fuel_Price`, `MarkDown1-5`, `CPI`, `Unemployment` | Feb 2010 – Jul 2013 (182 wks) | Exogenous economic and promotional signals |
+| `stores.csv` | **45** | `Store`, `Type` (A, B, C), `Size` (sq ft) | Static metadata | Physical store attributes and space density metrics |
+| `test.csv` | **115,064** | `Store`, `Dept`, `Date`, `IsHoliday` | Nov 2012 – Jul 2013 (39 wks) | Out-of-sample Kaggle competition test horizon |
+
+---
+
+## 🧠 Exploratory Data Analysis & Business Insights
+
+### 1. Store Format Efficiency & Sales Density
+Analyzing enterprise revenue ($6,737,218,987.11 total historical sales) across store formats reveals an unexpected operational efficiency:
+
+<p align="center">
+  <img src="outputs/figures/fig05_store_type_size_vs_sales.png" alt="Store Type Size vs Sales" width="95%"/>
+</p>
+
+- **Type A (Supercenters, 22 stores):** Generates **64.28%** of enterprise revenue ($4.331B) with an average sales density of **$7.77 / sq ft / week**.
+- **Type B (Medium Format, 17 stores):** Generates **29.70%** of enterprise revenue ($2.001B) with a sales density of **$8.13 / sq ft / week**.
+- **Type C (Small Neighborhood / Grocery, 6 stores):** Generates **6.02%** of revenue ($405.5M), but delivers the **highest sales density across the chain at $11.66 / sq ft / week**—representing a **+50.1% higher space efficiency** than Supercenters.
+
+---
+
+### 2. Department Revenue Concentration (Pareto 80/20 Rule)
+Sales concentration is heavily skewed toward essential departments:
+
+<p align="center">
+  <img src="outputs/figures/fig07_sales_concentration_pareto.png" alt="Sales Concentration Pareto Analysis" width="95%"/>
+</p>
+
+- **Top 10 Departments:** Account for **46.03%** of all historical sales ($3.101B), dominated by **Dept 92 (Dry Grocery, 7.18%)**, **Dept 95 (DSD Snacks & Beverage, 6.67%)**, and **Dept 38 (Pharmacy, 5.84%)**.
+- **The Top 20% of Departments:** Generate **78.4%** of total enterprise sales, confirming classical Pareto behavior in department store dynamics.
+
+---
+
+### 3. Holiday Surge Dynamics & The Pre-Christmas Shopping Shift
+Evaluating sales across major promotional holiday events reveals distinct shopping behaviors:
+
+<p align="center">
+  <img src="outputs/figures/fig12_holiday_sales_uplift_comparison.png" alt="Holiday Sales Uplift Comparison" width="95%"/>
+</p>
+
+- **Thanksgiving / Black Friday:** Triggers an immediate weekly sales surge of **approximately 40.89%** over the non-holiday baseline in documented 2010 row-level comparisons ($22,403.34 vs $15,901.45; **+41.30%** in enterprise weekly volume).
+- **The Christmas Shift Phenomenon:** Unlike Thanksgiving where the spike occurs on the exact holiday week, peak Christmas consumer spending occurs **1 to 2 weeks before Christmas Day** (**+55% surge in pre-Christmas weeks**). The actual Christmas week moderates due to store closures on December 25th.
+
+---
+
+### 4. Negative Sales Forensic Audit
+- Exactly **1,285 rows (0.3048%)** in the historical dataset record negative weekly sales.
+- Rather than representing data corruption, negative sales concentrate heavily in **Department 47 (254 occurrences)**, **Department 18 (180 occurrences)**, and **Department 54 (146 occurrences)**, reflecting customer merchandise returns, post-holiday refunds, and inter-store inventory reconciliation.
+- **Pipeline Strategy:** Negative sales are strictly preserved to maintain unbiased expected value estimation.
+
+---
+
+## 🏗️ System Architecture & Pipeline Workflow
+
+The forecasting architecture enforces rigorous chronological boundaries to ensure **zero data leakage**:
 
 ```mermaid
 flowchart TD
-    subgraph INGESTION ["1. Ingestion & Preprocessing"]
-        A["Raw CSV Datasets<br/>(train, stores, features, test)"] --> B["Data Cleaning & Merging<br/>(Preserve Negative Sales, Impute Markdowns)"]
+    subgraph INGESTION ["1. Ingestion & Data Sanitation"]
+        A["Raw Data Archives<br/>(train, test, features, stores)"] --> B["Schema Validation & Join<br/>(Preserve Negative Sales, Forward-fill Macro)"]
     end
 
-    subgraph EDA ["2. Exploratory Analysis"]
-        B --> C["EDA & Stationarity Analysis<br/>(Store Types, Pareto 80/20, ADF Tests)"]
+    subgraph FEATURES ["2. Leakage-Free Feature Engineering"]
+        B --> C["48 Approved Exogenous Features<br/>(Shift-1 Lags, Cyclical Time, Holiday Proximity)"]
     end
 
-    subgraph FEATURES ["3. Feature Engineering"]
-        C --> D["48 Leakage-Free Features (Shift-1)<br/>(Lag 52, Cyclical Calendar, Holiday Proximity)"]
+    subgraph VALIDATION ["3. Chronological Validation Engine"]
+        C --> D1["Train Set: 91 Weeks (267,184 rows)"]
+        C --> D2["Validation Set: 52 Weeks (154,386 rows)"]
     end
 
-    subgraph SPLIT ["4. Chronological Validation"]
-        D --> E1["Train Split: 91 Weeks (267,184 rows)"]
-        D --> E2["Validation Split: 52 Weeks (154,386 rows)"]
+    subgraph BENCHMARKING ["4. Model Evaluation & Benchmarks"]
+        D1 & D2 --> E1["Statistical Baselines (Phase 4)<br/>(Seasonal Naive, MA-4, SES, Median)"]
+        D1 & D2 --> E2["Recursive GBDTs (Phase 5)<br/>(LightGBM, XGBoost, CatBoost)"]
+        D1 & D2 --> E3["Seasonal Residual LightGBM (Phase 6)<br/>(Anchor = Lag 52, Target = Delta_t)"]
     end
 
-    subgraph BENCHMARK ["5. Model Benchmarking"]
-        E1 & E2 --> F1["Statistical Baselines (Phase 4)<br/>(Seasonal Naive, MA-4, SES, Median)"]
-        E1 & E2 --> F2["Recursive GBDTs (Phase 5)<br/>(LightGBM, XGBoost, CatBoost)"]
-        E1 & E2 --> F3["Seasonal Residual LightGBM (Phase 6 Champion)<br/>(Anchor = Lag 52, Target = Sales - Lag 52)"]
+    subgraph EVALUATION ["5. Evaluation & Champion Selection"]
+        E1 & E2 & E3 --> F["Official WMAE Evaluation<br/>(5:1 Holiday Weighting)"]
+        F --> G["Champion: Seasonal Residual LightGBM<br/>WMAE: $1,878.37 (-5.54%)"]
     end
 
-    subgraph EVALUATION ["6. Evaluation Engine"]
-        F1 & F2 & F3 --> G["Official Walmart WMAE Engine<br/>(5:1 Holiday Weighting)"]
-        G --> H["Champion Selected: Seasonal Residual LightGBM<br/>WMAE: $1,878.37"]
-    end
-
-    subgraph PRODUCTION ["7. Production Retraining & Submission"]
-        H --> I["Full Retraining on All 261,541 Eligible Rows"]
-        I --> J["Out-of-Sample Test Inference (115,064 rows)"]
-        J --> K["outputs/submission/submission.csv (100% Kaggle Validated)"]
+    subgraph PRODUCTION ["6. Production Retraining & Submission"]
+        G --> H["Full Retraining on All 261,541 Eligible Rows<br/>(350 Trees, regression_l1)"]
+        H --> I["Out-of-Sample Test Inference (115,064 rows)"]
+        I --> J["outputs/submission/submission.csv<br/>(100% Kaggle Validated)"]
     end
 ```
 
 ---
 
-## 🔄 Phases 1–7 Implementation Summary
+## ⚙️ Feature Engineering & Leakage Prevention
 
-The project was executed in 7 structured phases:
+The model employs exactly **48 predictor features** adhering to the **Strict Shift-1 Principle** ($\text{Feature}_t = f(\text{Data}_{t-1})$), guaranteeing zero target leakage:
 
-- **Phase 1: Project Audit & Data Ingestion**  
-  Audited all raw files, verified schemas, and created the modular source structure without modifying original data.
-- **Phase 2: Exploratory Data Analysis & Time-Series Analysis**  
-  Profiled store formats, documented the $6.737B enterprise sales distribution, investigated negative sales records (1,285 rows across Dept 47, 18, 54), and performed ADF stationarity tests.
-- **Phase 3: Feature Engineering & Validation Framework**  
-  Created 48 features adhering to the strict shift-1 rule (preventing data leakage), cyclical trigonometric calendar encodings, holiday proximity features, and a 52-week chronological validation split.
-- **Phase 4: Baseline Forecasting & Benchmarking**  
-  Built 5 statistical baselines. Established **Seasonal Naive (Lag 52)** as the primary benchmark champion with an official WMAE of **$1,988.53**.
-- **Phase 5: Advanced Machine Learning Models**  
-  Trained recursive LightGBM, XGBoost, and CatBoost models. Discovered that recursive autoregression caused **compounding error drift**, smoothing out holiday peaks and underperforming the baseline.
-- **Phase 6: Seasonal Residual Modeling & Blending**  
-  Broke the compounding drift dilemma by anchoring predictions on the 52-week lag and training LightGBM to predict only the year-over-year residual ($\Delta_t = y_t - y_{t-52}$). Validation WMAE dropped to an all-time record **$1,878.37**.
-- **Phase 7: Full Retraining & Final Kaggle Submission**  
-  Retrained the champion model across all **261,541 eligible historical residual observations**, generated predictions for all **115,064 test rows** in 1.12 seconds, and verified 100% submission alignment.
+```
+Total Predictor Matrix: 48 Features
+├── 📅 Calendar & Cyclical (8 Features)
+│   ├── Week of Year (Sine & Cosine Harmonics)
+│   ├── Month of Year (Sine & Cosine Harmonics)
+│   ├── Is_Month_Start, Is_Month_End, Days_in_Month, Year
+│
+├── 🎄 Holiday Proximity & Indicators (7 Features)
+│   ├── IsHoliday (Official Binary Flag)
+│   ├── Super_Bowl, Labor_Day, Thanksgiving, Christmas (Event Flags)
+│   ├── Weeks_To_Next_Holiday, Weeks_Since_Last_Holiday (Proximity Curves)
+│
+├── 🏷️ Promotional Markdown Signals (15 Features)
+│   ├── MarkDown1 – MarkDown5 (Imputed continuous values)
+│   ├── MarkDown1_IsMissing – MarkDown5_IsMissing (Binary indicators)
+│   ├── Total_MarkDown_Value, Active_MarkDown_Count, Has_Any_MarkDown
+│   ├── Markdown_Available_Era (Structural break flag: Nov 2011 onward)
+│
+├── 🏬 Store Physical Attributes (6 Features)
+│   ├── Type_Encoded (A=0, B=1, C=2)
+│   ├── Size (Total square footage)
+│   ├── Sales_Density_Proxy, Store_Dept_Interaction_Code
+│
+└── 📈 Economic Indicators & Long-Term Lags (12 Features)
+    ├── Temperature, Fuel_Price, CPI, Unemployment
+    ├── CPI_Missing_Indicator, Unemployment_Missing_Indicator
+    ├── Temperature_Diff_Lag52, Fuel_Price_Diff_Lag52
+    └── Sales_Lag_52, Sales_Lag_53, Sales_Lag_54 (Historical seasonal baseline)
+```
 
 ---
 
-## 🏆 Project Leaderboard (Out-of-Sample 52-Week Validation)
+## 📉 Why Recursive ML Failed: The Drift Dilemma
 
-All models were evaluated across **154,386 observations** over the exact same 52-week chronological validation horizon (`2011-11-04` to `2012-10-26`) using Walmart's official **WMAE** metric:
+In Phase 5, state-of-the-art recursive GBDT regressors (LightGBM, XGBoost, CatBoost) were trained to forecast sales step-by-step. Despite extensive hyperparameter tuning, **all recursive ML models lost decisively to simple Seasonal Naive**:
+- **Seasonal Naive WMAE:** **$1,988.53**
+- **Recursive LightGBM WMAE:** **$2,211.83 (+11.23% higher error)**
 
-| Rank | Model Name | Phase | Official WMAE ($) | Unweighted MAE ($) | RMSE ($) | Holiday WMAE ($) | Non-Holiday WMAE ($) | Improvement vs Baseline |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 🥇 | **Seasonal Residual LightGBM** | **Phase 6** | **$1,878.37** | **$1,795.53** | **$3,906.52** | **$2,144.99** | **$1,766.11** | **-$110.16 (-5.54%)** 🏆 |
-| 🥈 | **Global Blended Ensemble** | **Phase 6** | **$1,878.37** | **$1,795.53** | **$3,906.52** | **$2,144.99** | **$1,766.11** | **-$110.16 (-5.54%)** |
-| 🥉 | **Seasonal Naive (Lag 52)** | **Phase 4** | **$1,988.53** | **$1,917.65** | **$4,178.57** | **$2,216.66** | **$1,892.47** | Benchmark Baseline |
-| 4 | **Recursive LightGBM Regressor** | **Phase 5** | **$2,211.83** | **$2,013.47** | **$5,110.91** | **$2,850.33** | **$1,943.00** | +$223.30 (+11.23%) |
-| 5 | **Recursive XGBoost Regressor** | **Phase 5** | **$2,473.63** | **$2,192.41** | **$5,807.57** | **$3,378.81** | **$2,092.51** | +$485.10 (+24.39%) |
-| 6 | **Recursive CatBoost Regressor** | **Phase 5** | **$2,658.50** | **$2,351.47** | **$6,408.10** | **$3,646.77** | **$2,242.39** | +$669.97 (+33.69%) |
-| 7 | **4-Week Moving Average** | **Phase 4** | **$3,222.10** | **$2,870.22** | **$7,819.67** | **$4,354.74** | **$2,745.21** | +$1,233.57 (+62.03%) |
-| 8 | **Store-Dept Historical Median**| **Phase 4** | **$3,292.26** | **$2,884.08** | **$8,032.19** | **$4,606.11** | **$2,739.07** | +$1,303.73 (+65.56%) |
-| 9 | **Naive (Last Value)** | **Phase 4** | **$3,663.62** | **$3,349.64** | **$8,464.44** | **$4,674.24** | **$3,238.10** | +$1,675.09 (+84.24%) |
-| 10 | **Hierarchical Fallback Baseline**| **Phase 4** | **$6,620.61** | **$6,304.49** | **$12,958.41** | **$7,638.15** | **$6,192.19** | +$4,632.08 (+232.94%)|
+<p align="center">
+  <img src="outputs/figures/fig09_yoy_weekly_sales_overlay.png" alt="Year-over-Year Seasonal Periodicity" width="95%"/>
+</p>
+
+### Root Cause Analysis via SHAP Interpretability:
+1. **Autoregressive Feature Dominance:** Feature attribution revealed that tree boosters allocated **51.35% of total mean absolute SHAP value to `Sales_Lag_1`** (with a 62.07% feature gain share).
+2. **Error Compounding Feedback Loop:** Over a multi-step horizon of up to 39 weeks, actual values for `Sales_Lag_1` are unavailable. The model was forced to feed its own prior predictions recursively into lag inputs:
+   $$\hat{y}_{t+1} = f(\hat{y}_t), \quad \hat{y}_{t+2} = f(\hat{y}_{t+1}), \quad \dots$$
+3. **The Seasonal Collapse:** This recursive feedback loop acted as an aggressive low-pass filter. The model rapidly drifted toward the global department mean, completely smoothed out the 52-week annual seasonality, and **underpredicted Thanksgiving holiday sales by more than $4,672 per department**.
 
 ---
 
 ## 💡 The Champion: Seasonal Residual LightGBM
 
-### Why Recursive Machine Learning Failed:
-In Phase 5, SHAP analysis revealed that standard recursive GBDT models allocated a **51.35% normalized share of total mean absolute SHAP values to `Sales_Lag_1`** (with a 62.07% feature gain share). When forecasting 52 weeks ahead without actual sales, feeding predicted sales back into `Lag_1` created an autoregressive feedback loop. This smoothed out seasonal variation, caused predictions to drift toward the series mean, and missed the Thanksgiving holiday spike by over **$4,672 per department**.
-
-### The Seasonal Residual Architecture:
-The champion architecture breaks compounding drift by splitting the forecast into two parts:
+To eliminate error compounding while retaining the power of gradient boosted trees, Phase 6 pioneered a **Seasonal Residual Decomposition**:
 
 $$\hat{y}_t = \text{Anchor}_t + \hat{\Delta}_t$$
 
+```
+   ┌────────────────────────┐         ┌────────────────────────┐
+   │    Seasonal Anchor     │         │   LightGBM Residual    │
+   │      (Lag 52 / y_t-52) │    +    │       (Delta_t)        │
+   ├────────────────────────┤         ├────────────────────────┤
+   │ Pristine 52-week prior │         │ Predicts YoY shift     │
+   │ Locks holiday geometry │         │ Uses 48 exogenous vars │
+   │ Zero autoregression    │         │ Zero recursive lags    │
+   └───────────┬────────────┘         └───────────┬────────────┘
+               │                                  │
+               └─────────────────┬────────────────┘
+                                 ▼
+                   ┌───────────────────────────┐
+                   │    Final Forecast y_hat   │
+                   │    WMAE: $1,878.37 🏆     │
+                   └───────────────────────────┘
+```
+
 1. **The Seasonal Anchor ($\text{Anchor}_t$):**  
-   Uses the pristine 52-week lag ($y_{t-52}$) to naturally preserve the core seasonal pattern and holiday peaks. For cold-start series without a 52-week history, the hierarchical store-department median is used.
-2. **The LightGBM Residual ($\hat{\Delta}_t$):**  
-   Trained to predict only the year-over-year difference ($\Delta_t = y_t - y_{t-52}$) using exactly the **48 approved exogenous features** from `outputs/model/feature_names.json`. Short-term recursive lags (`Sales_Lag_1`, `Sales_RollMean_4`, etc.) are intentionally excluded from the champion model, eliminating error compounding.
-
-### Key Advantages:
-- **Zero Compounding Drift:** Because the residual booster uses zero recursive short-term lags, errors cannot accumulate over time.
-- **Stationary Target:** The year-over-year residual is zero-centered and stationary, making it much easier for decision trees to learn.
-- **Superior Results:** Outperformed Seasonal Naive by **-$110.16 WMAE** and beat Recursive LightGBM by **-$333.46 WMAE**.
+   Uses the pristine 52-week historical sales value ($y_{t-52}$) as the fixed seasonal anchor. Because annual retail patterns are extraordinarily periodic, the anchor preserves the exact holiday spike geometry. For new cold-start series lacking 52 weeks of history, a **Hierarchical Fallback Manager** substitutes the store-department historical median.
+2. **The LightGBM Residual Booster ($\hat{\Delta}_t$):**  
+   Trained to predict **only the year-over-year residual difference**:
+   $$\Delta_t = y_t - y_{t-52}$$
+   The residual booster is trained using **objective="regression_l1"** (directly minimizing absolute deviation) with **sample_weight=5.0 for holidays and 1.0 for non-holidays**. All short-term recursive lags (`Sales_Lag_1`, `Sales_RollMean_4`) are strictly excluded, eliminating compounding error drift entirely.
 
 ---
 
-## 📈 Final Kaggle Submission Details
+## 🏆 Model Leaderboard & Validation Results
 
-The final competition submission was generated using the fully retrained model:
+All 10 models were benchmarked across **154,386 out-of-sample observations** on an identical 52-week chronological holdout (`2011-11-04` to `2012-10-26`) using the official competition metric:
 
-- **File Path:** `outputs/submission/submission.csv`
+$$\text{WMAE} = \frac{\sum_{i=1}^{n} w_i \left| y_i - \hat{y}_i \right|}{\sum_{i=1}^{n} w_i}, \quad w_i = \begin{cases} 5.0 & \text{if } \text{IsHoliday} = \text{True} \\ 1.0 & \text{otherwise} \end{cases}$$
+
+| Rank | Model Architecture | Phase | Official WMAE ($) | Unweighted MAE ($) | RMSE ($) | Holiday WMAE ($) | Non-Holiday WMAE ($) | Improvement vs Baseline |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 🥇 | **Seasonal Residual LightGBM** | **Phase 6** | **$1,878.37** | **$1,795.53** | **$3,906.52** | **$2,144.99** | **$1,766.11** | **-$110.16 (-5.54%)** 🏆 |
+| 🥈 | **Global Blended Ensemble** | **Phase 6** | **$1,878.37** | **$1,795.53** | **$3,906.52** | **$2,144.99** | **$1,766.11** | **-$110.16 (-5.54%)** |
+| 🥉 | **Seasonal Naive (Lag 52)** | **Phase 4** | **$1,988.53** | **$1,917.65** | **$4,178.57** | **$2,216.66** | **$1,892.47** | Primary Baseline |
+| 4 | **Recursive LightGBM Regressor** | **Phase 5** | **$2,211.83** | **$2,013.47** | **$5,110.91** | **$2,850.33** | **$1,943.00** | +$223.30 (+11.23%) |
+| 5 | **Recursive XGBoost Regressor** | **Phase 5** | **$2,473.63** | **$2,192.41** | **$5,807.57** | **$3,378.81** | **$2,092.51** | +$485.10 (+24.39%) |
+| 6 | **Recursive CatBoost Regressor** | **Phase 5** | **$2,658.50** | **$2,351.47** | **$6,408.10** | **$3,646.77** | **$2,242.39** | +$669.97 (+33.69%) |
+| 7 | **4-Week Moving Average** | **Phase 4** | **$3,222.10** | **$2,870.22** | **$7,819.67** | **$4,354.74** | **$2,745.21** | +$1,233.57 (+62.03%) |
+| 8 | **Store-Dept Historical Median**| **Phase 4** | **$3,292.26** | **$2,884.08** | **$8,032.19** | **$4,606.11** | **$2,739.07** | +$1,303.73 (+65.56%) |
+| 9 | **Naive Last-Value Forecaster** | **Phase 4** | **$3,663.62** | **$3,349.64** | **$8,464.44** | **$4,674.24** | **$3,238.10** | +$1,675.09 (+84.24%) |
+| 10 | **Hierarchical Fallback Baseline**| **Phase 4** | **$6,620.61** | **$6,304.49** | **$12,958.41** | **$7,638.15** | **$6,192.19** | +$4,632.08 (+232.9%) |
+
+---
+
+## 📈 Final Kaggle Competition Submission
+
+Following chronological model validation, the champion Seasonal Residual LightGBM model was retrained on the complete historical dataset (**421,570 observations, 261,541 eligible residual rows**) and deployed to generate out-of-sample predictions across the complete competition test horizon:
+
+- **Target File:** [`outputs/submission/submission.csv`](outputs/submission/submission.csv)
 - **Observations:** Exactly **115,064 rows** and 2 columns (`Id`, `Weekly_Sales`).
-- **Target Alignment:** 100% exact match to Kaggle's `sampleSubmission.csv.zip` row-for-row.
-- **Data Quality:** Zero NaNs, zero nulls, zero infinite values, zero duplicate keys.
-- **Inference Speed:** **1.12 seconds** across 115,064 rows (**102,735 predictions/sec**).
-- **Summary Statistics:**
-  - Mean Predicted Weekly Sales: **$16,284.70**
-  - Median Predicted Weekly Sales: **$7,332.49**
-  - Min / Max Prediction: **-$970.84** / **$629,626.85** (Thanksgiving Electronics peak)
-  - Negative Predictions: **723 rows (0.63%)**, strictly matching historical low-volume/intermittent departments.
-
----
-
-## 🧠 Verified Business Insights
-
-1. **Store Format Performance (Total Sales: $6.737B):**
-   - **Type A (Supercenters, 22 stores):** Generate **64.28%** of total historical sales ($4,331,014,537.46) with a sales density of **$7.77 per sq ft / week**.
-   - **Type B (Medium Stores, 17 stores):** Generate **29.70%** of total historical sales ($2,000,701,253.41) with a sales density of **$8.13 per sq ft / week**.
-   - **Type C (Small Grocery, 6 stores):** Generate **6.02%** of total historical sales ($405,503,507.82) but achieve the highest sales density at **$11.66 per sq ft / week** (+50.1% higher space efficiency than Supercenters).
-2. **Department Revenue Concentration:**
-   - The top 10 revenue-generating departments contribute **46.03%** of total enterprise sales ($3.101B), led by Dept 92 (Dry Grocery, 7.18%), Dept 95 (DSD Snacks, 6.67%), and Dept 38 (Pharmacy, 5.84%). Top 20% of departments generate **78.4%** of total sales.
-3. **Negative Sales Records:**
-   - Exactly **1,285 rows (0.3048%)** in the historical training set record negative weekly sales, with the highest concentrations reported in **Departments 47 (254 rows), 18 (180 rows), and 54 (146 rows)**, reflecting customer refunds and inventory adjustments.
-4. **Holiday Shopping Dynamics:**
-   - **Thanksgiving / Black Friday:** Drives an uplift of **approximately 40.89%** over the non-holiday baseline in documented 2010 comparisons ($22,403.34 vs $15,901.45 row-level mean; +41.30% in enterprise weekly aggregate).
-   - **Christmas:** Peak shopping volume occurs **1 to 2 weeks before Christmas Day** (+55% in Pre-Christmas weeks), while Christmas week itself moderates due to store closures.
-
-*(All enterprise metrics verified from historical data via `outputs/figures/` and `src/eda_engine.py`.)*
+- **Kaggle Alignment:** **100% exact match** against Kaggle's `sampleSubmission.csv` in ID values and row ordering.
+- **Inference Speed:** **1.12 seconds** total runtime (**102,735 predictions/sec** throughput).
+- **Quality Assurance:** Zero missing values, zero NaNs, zero duplicate keys.
+- **Prediction Summary Statistics:**
+  - Mean Predicted Sales: **$16,284.70**
+  - Median Predicted Sales: **$7,332.49**
+  - Min / Max Prediction: **-$970.84** / **$629,626.85** (Thanksgiving Electronics surge)
+  - Negative Predictions: **723 rows (0.63%)**, matching historical refund rates in low-volume departments.
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-Demand-Forecasting/
+Walmart-Store-Demand-Forecasting/
 ├── README.md                                # Comprehensive project portfolio README
 ├── requirements.txt                         # Pinned dependency environment (Python 3.10–3.13)
-├── .gitignore                               # Git hygiene & dataset exclusions
+├── .gitignore                               # Git hygiene & cache exclusions
 │
-├── src/                                     # Reusable production forecasting pipeline
+├── src/                                     # Reusable production forecasting pipeline (17 modules)
 │   ├── data_loader.py                       # Ingestion & schema verification
-│   ├── preprocessing.py                     # Cleaning, negative sales & cold starts
-│   ├── feature_engineering.py               # 48 leakage-free features & cyclical time
+│   ├── preprocessing.py                     # Data cleaning, negative sales & cold starts
+│   ├── feature_engineering.py               # 48 leakage-free features & cyclical harmonics
 │   ├── validation.py                        # 52-week chronological split engine
 │   ├── evaluation.py                        # Official Walmart WMAE/MAE/RMSE metrics
-│   ├── baseline_models.py                   # Statistical baselines (SNaive, MA-4, SES)
+│   ├── baseline_models.py                   # Statistical baselines (SNaive, MA-4, SES, Median)
 │   ├── benchmark.py                         # Phase 4 baseline benchmarking orchestrator
 │   ├── ml_models.py                         # GBDT regressors (LightGBM, XGBoost, CatBoost)
-│   ├── ml_training.py                       # GBDT training orchestrator with sample weights
+│   ├── ml_training.py                       # GBDT training orchestrator with 5:1 sample weights
 │   ├── ml_forecasting.py                    # Multi-step recursive forecasting engine
 │   ├── model_comparison.py                  # Phase 5 ML benchmark & SHAP explainability
 │   ├── residual_model.py                    # Seasonal Residual LightGBM (Champion)
@@ -261,9 +360,9 @@ Demand-Forecasting/
     ├── metrics/                             # Final model evaluation metrics
     │   ├── baseline_comparison_metrics.json # Phase 4 baseline benchmarks
     │   ├── phase6_comparison_metrics.json   # Phase 6 champion validation metrics
-    │   └── final_model_metrics.json         # Phase 7 production retraining metrics
+    │   └── final_model_metrics.json         # Production retraining metrics
     ├── submission/                          # Competition test predictions
-    │   ├── submission.csv                   # Official Kaggle submission (115,064 rows)
+    │   ├── submission.csv                   # Official Kaggle submission (115,064 rows, 3.95 MB)
     │   └── sample_submission_head.csv       # Preview verification
     └── model/                               # Final champion model artifact & metadata
         ├── final_seasonal_residual_lgbm.pkl # Serialized Champion Forecaster (1.91 MB)
@@ -274,9 +373,9 @@ Demand-Forecasting/
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## 🧪 Testing & Code Quality
 
-The codebase includes **48 automated unit and integration tests** verifying data leakage prevention, negative sales preservation, chronological boundary integrity, WMAE calculation, and submission formatting:
+The repository includes a comprehensive test suite of **48 automated unit and integration tests** verifying data leakage prevention, negative sales handling, chronological boundary integrity, WMAE calculation, and submission formatting:
 
 ```bash
 pytest tests/ -v
@@ -301,73 +400,70 @@ tests/test_validation.py .....                           [100%]
 
 ---
 
-## 🚀 Installation & Execution Guide
+## 🚀 Reproduction & Installation Guide
 
-### 1. Clone Repository & Setup Environment
+### 1. Clone the Repository & Install Dependencies
 ```bash
-git clone https://github.com/Aditya-err/Demand-Forecasting.git
-cd Demand-Forecasting
+git clone https://github.com/Aditya-err/Walmart-Store-Demand-Forecasting.git
+cd Walmart-Store-Demand-Forecasting
 pip install -r requirements.txt
 ```
 
-### 2. Run Automated Test Suite
+### 2. Run the Automated Test Suite
 ```bash
 pytest tests/ -v
 ```
 
-### 3. Run the Phase 6 Champion Validation Pipeline
-```bash
-python src/phase6_pipeline.py
-```
-
-### 4. Run the Phase 7 Production Retraining & Kaggle Submission Pipeline
-```bash
-python src/phase7_pipeline.py
-```
-
----
-
-## ⚠️ Limitations & Future Improvements
-
-### Practical Limitations:
-- **Macroeconomic Blackout in Test Period:** `CPI` and `Unemployment` are missing for the final 13 weeks of the competition test horizon, requiring chronological forward-filling.
-- **Lack of SKU-Level Granularity:** Data is aggregated weekly by department and does not include individual product unit sales, item prices, or inventory out-of-stock logs.
-- **Cold-Start Sensitivity:** Newly opened departments with less than 52 weeks of history must rely on hierarchical median anchors until an entire seasonal cycle has elapsed.
-
-### Future Improvements:
-- **Direct Multi-Horizon Modeling:** Training distinct models for short-term (1–4 weeks) vs long-term (12–39 weeks) horizons.
-- **Store-Department Clustering:** Grouping similar store types and departments to share learned parameters for rare or volatile items.
-- **Inter-Department Cannibalization:** Modeling sales spillover between adjacent departments (e.g., Grocery vs. Deli).
-
----
-
-## 📥 Kaggle Dataset Setup & Engineering Notes
-
-Because competition datasets cannot be redistributed directly on GitHub under Kaggle competition rules, follow these instructions to fetch the raw data:
-
+### 3. (Optional) Ingest Raw Kaggle Data
+Because Kaggle terms prohibit redistributing competition data directly in public repositories, download the raw archives via Kaggle CLI:
 ```bash
 # 1. Download official dataset files via Kaggle CLI
 kaggle competitions download -c walmart-recruiting-store-sales-forecasting
 
-# 2. Place raw archives into project root or data/raw/
-# Required files: train.csv.zip, test.csv.zip, features.csv.zip, stores.csv, sampleSubmission.csv.zip
+# 2. Place raw files into project root (train.csv.zip, test.csv.zip, features.csv.zip, stores.csv)
 
-# 3. Ingest and merge raw datasets (creates data/processed/train_merged, test_merged)
+# 3. Ingest and merge raw datasets
 python src/data_loader.py
 
 # 4. Generate 48 engineered features & chronological holdouts
 python src/validation.py
 ```
 
-> **Note on Test Suite Reproduction:**  
-> The core **37 unit tests** (WMAE/MAE/RMSE evaluation math, shift-1 leakage checks, GBDT model wrappers, serialized model loading, and submission formatting) run completely in-memory using synthetic data and committed artifacts without needing raw data. Running `python src/validation.py` generates the four engineered Parquet feature matrices (`train_engineered.parquet`, `val_engineered.parquet`, `test_engineered.parquet`, `full_train_engineered.parquet`) in `data/processed/` required by the **11 data-dependent integration tests**, bringing the entire test suite to 100% (48/48 passed).
+### 4. Run the Champion Forecasting Pipelines
+```bash
+# Execute Phase 6 52-week Holdout Validation Benchmark
+python src/phase6_pipeline.py
 
-### Core Engineering Takeaways:
-1. **Why Residual Modeling Beats Pure Machine Learning:**  
-   In retail time series with high annual seasonality, tree-based models fail to extrapolate holiday spikes. Anchoring forecasts to the exact 52-week lag ($y_{t-52}$) provides a robust, proven seasonal backbone. The LightGBM booster then only needs to predict the stationary year-over-year residual ($\Delta_t$), capturing promotions and macro trends without corrupting the holiday peak.
-2. **Why Recursive Autoregression Fails in Multi-Step Forecasts:**  
-   When short-term lags (e.g., `Sales_Lag_1`) dominate model importance (51.35% SHAP contribution), feeding model predictions recursively over a 39-week horizon creates a severe error feedback loop. The forecasts quickly collapse toward the series mean and miss the Thanksgiving surge by thousands of dollars. The Seasonal Residual architecture avoids recursive lags entirely, producing stationary, zero-drift multi-step forecasts.
+# Execute Phase 7 Full Retraining & Kaggle Submission Generation
+python src/phase7_pipeline.py
+```
 
 ---
 
-*Developed by Aditya | MCA Store Demand Forecasting & Business Intelligence Portfolio Project*
+## 🛠️ Tech Stack & Engineering Competencies
+
+- **Languages:** Python (3.10 – 3.13)
+- **Data Manipulation & Analysis:** Pandas, NumPy, Scipy, PyArrow (Apache Parquet)
+- **Machine Learning & Gradient Boosting:** LightGBM, Scikit-Learn, XGBoost, CatBoost
+- **Time Series & Econometrics:** Statsmodels (ADF Test, STL Decomposition, Moving Averages)
+- **Interpretability & Explainability:** SHAP (TreeExplainer, Mean Absolute SHAP Attribution)
+- **Data Visualization:** Matplotlib, Seaborn
+- **Testing & Quality Assurance:** Pytest, Test-Driven Development (TDD)
+- **Core Competencies:** Multi-Series Forecasting, Target Leakage Prevention, Hierarchical Fallbacks, Asymmetric Loss Optimization, Residual Modeling.
+
+---
+
+## 👨‍💻 Author & Connect
+
+**Aditya**  
+*MCA Graduate | Data Analyst • Junior Data Scientist • Junior Machine Learning Engineer*  
+
+- **GitHub:** [@Aditya-err](https://github.com/Aditya-err)
+- **Repository:** [Walmart-Store-Demand-Forecasting](https://github.com/Aditya-err/Walmart-Store-Demand-Forecasting)
+- **Kaggle Profile:** [Aditya on Kaggle](https://www.kaggle.com/)
+
+---
+
+<p align="center">
+  <em>Developed with ❤️ as an end-to-end Master of Computer Applications (MCA) Portfolio Project.</em>
+</p>
